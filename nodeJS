@@ -1,0 +1,46 @@
+
+//jshint esversion:6
+const express = require("express");
+const app = express();
+
+//ejs 
+app.set('view engine', 'ejs');
+
+
+const port = 3000;
+const bodyParser = require('body-parser');
+
+
+// root webPage
+app.get("/", function(get,res){
+  res.send("Welcome to my calculator Site");
+});
+// application parser
+app.use(bodyParser.urlencoded({extended: true}));
+
+//public folder
+app.use(express.static("public"));
+
+// ejs use (should be under views folder !!)
+res.render("index", {today: today});
+
+// calculate webPage
+app.get('/calculate', function(req,res) {
+  res.sendfile(__dirname + "/index.html");
+});
+
+// post session
+app.post('/calculate', function(req,res) {
+  var sum = calculatorex(req.body.num1, req.body.num2);
+res.send("the ansower is " + sum );
+});
+
+// console output
+app.listen(port, function() {
+  console.log("port 3000 connected");
+});
+
+// calculator
+function calculatorex(n1,n2) {
+  return Number(n1) + Number(n2);
+}
