@@ -1,0 +1,53 @@
+//jshint esversion: 6
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost:27017/productsList", {useUnifiedTopology: true,  useNewUrlParser: true });
+
+const db = mongoose.connection;
+db.once("open", function(){ console.log("connected successfully to port 27017 !!");});
+
+
+const productListSchema = new mongoose.Schema( {
+  name: String,
+  rating: Number,
+  review: String
+});
+
+const ProductList = mongoose.model("ProductList", productListSchema);
+
+ProductList.find(function(err,products){
+  if (err) { console.log(err);}
+  else{
+    db.close();
+    products.forEach(function(product){
+      console.log(product.name);
+    });
+
+  }
+});
+
+
+
+//insert in the DB
+// const book = new ProductList ({
+//   name: "lord of the ring",
+//   rating: 8,
+//   review: "i like the fist chapter !"
+// });
+//
+// const book1 = new ProductList ({
+//   name: "lord of the ring2",
+//   rating: 9,
+//   review: "gooofee !"
+// });
+//
+// const book2 = new ProductList ({
+//   name: "lord of the ring 3 ",
+//   rating: 8,
+//   review: "master of all !"
+// });
+
+// update the DB (many items)
+// ProductList.insertMany([book, book1, book2]);
+
+//update single item
+// productsList.save();
