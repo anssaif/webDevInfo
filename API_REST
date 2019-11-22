@@ -1,0 +1,79 @@
+//jshint esversion: 6
+const express = require("express");
+const bodyparser = require("body-parser");
+const mongoose = require("mongoose");
+const ejs = require("ejs");
+const app = express();
+
+app.use(bodyparser.urlencoded({extended: true}));
+app.use(express.static("public"));
+app.set("view engine", "ejs" );
+
+mongoose.connect("mongodb://localhost/cars", {useNewUrlParser: true, useUnifiedTopology: true});
+const db = mongoose.connection;
+db.once("open",function() {
+  console.log("connected to DB");
+});
+
+//object Schema
+const carsSchema = mongoose.Schema({
+  title: String,
+  module: Number,
+  review: String
+});
+
+// object model
+const Cars = mongoose.model("Car", carsSchema);
+
+
+
+app.route("/cars")
+.get(function(req, res){
+  Cars.find(function(err, findItems) {
+    if(!err) {
+      res.send(findItems);
+    }
+  });
+})
+.post(function(req, res){
+  const newCarTitle = req.body.title;
+  const newCarModule = req.body.module;
+  const newCarReview = req.body.review;
+  const newCar = new Cars({
+    title: newCarTitle,
+    module: newCarModule,
+    review: newCarReview
+  });
+  newCar.save();
+  res.send("new Car " +  newCarTitle + " added to the Data Base");
+})
+.delete(function(req, res){
+  const newCarTitle = req.body.title;
+  Cars.deleteOne({title: newCarTitle}, function(err){
+    if(!err){res.send("new Car " +  newCarTitle + " deleted from the Data Base");}
+  });
+});
+app.route("/cars/:car")
+.get(function(req, res) {
+  Cars.find(function(err, result) {
+    res.send(result);
+  });
+})
+.put(function(req, res) {
+  const car = req.params.car;
+  Cars.updateOne({title: car}, {$set: req.body} , function(err){
+    if(!err) { res.send("Update seccessfull" );} else { res.send (err);}
+  } );
+});
+
+app.route("/")
+.get(function(req, res){
+  Cars.find(function(err, foundCars){
+    res.render("home",{carsList: foundCars});
+  });
+});
+
+
+app.listen("3000", function() {
+  console.log("connected to port 3000");
+});
